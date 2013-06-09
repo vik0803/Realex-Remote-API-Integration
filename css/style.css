@@ -1,0 +1,46 @@
+form {
+  padding-left: 20px;
+}
+
+div.paramName {
+  display: inline-block;
+  height: 20px;
+  padding: 4px 6px;
+  margin-bottom: 10px;
+  line-height: 20px;
+  vertical-align: middle;
+  width: 300px;
+  text-align: right;
+}
+
+input.paramCheckbox {
+  display: inline-block;
+  height: 20px;
+  margin-bottom: 10px;
+}
+
+input[type='text'] {
+  width: 500px;
+  margin-right: 10px;
+}
+
+#shippingAddressContainer {
+  display: none;
+}
+
+.lineItemContainer {
+  display: inline-block;
+  padding-top: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #BBB;
+}
+
+.prettyprint {
+  display: inline-block;
+  padding: 10px !important;
+  border: 1px solid #BBBBBB !important;
+}
+
+.result {
+  padding-left: 20px;
+}
