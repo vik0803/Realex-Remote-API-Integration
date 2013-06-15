@@ -3,9 +3,9 @@
 <head>
   <title>Realex: Express Checkout</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <link type="text/css" href="../Common/css/bootstrap/cosmo/bootstrap.min.css" rel="stylesheet" />
+  <link type="text/css" href="./css/bootstrap/cosmo/bootstrap.min.css" rel="stylesheet" />
   <link type="text/css" href="./css/style.css" rel="stylesheet" />
-  <script type="text/javascript" src="../Common/javascript/jquery-1.8.0.min.js"></script>
+  <script type="text/javascript" src="./js/jquery-1.8.0.min.js"></script>
   <script type="text/javascript" src="./js/basket.js"></script>
 </head>
 <body>
@@ -15,7 +15,7 @@
         <a class="brand" href="#">Realex Express Checkout Test Page</a>
         <div class="nav-collapse">
           <ul class="nav">
-            <li class="active"><a href="#">Checkout</a></li>
+            <li class="active"><a href="index.html">Checkout</a></li>
             <li><a href="capture.php">Capture</a></li>
             <li><a href="void.php">Void</a></li>
             <li><a href="refund.php">Refund</a></li>
@@ -34,8 +34,7 @@
       <input type="text" id="L_PAYMENTREQUEST_0_QTY0" name="L_PAYMENTREQUEST_0_QTY0" onchange="updateTotal()" value="1" /><br />
       <div class="paramName">L_PAYMENTREQUEST_0_AMT0:</div>
       <input type="text" id="L_PAYMENTREQUEST_0_AMT0" name="L_PAYMENTREQUEST_0_AMT0" onchange="updateTotal()" value="11.11" /><br />
-    </div>
-    <br />
+    </div><br />
     <div class="lineItemContainer">
       <div class="paramName">L_PAYMENTREQUEST_0_NAME1:</div>
       <input type="text" name="L_PAYMENTREQUEST_0_NAME1" value="Item 2 Name" /><br />
@@ -45,15 +44,80 @@
       <input type="text" id="L_PAYMENTREQUEST_0_QTY1" name="L_PAYMENTREQUEST_0_QTY1" onchange="updateTotal()" value="2" /><br />
       <div class="paramName">L_PAYMENTREQUEST_0_AMT1:</div>
       <input type="text" id="L_PAYMENTREQUEST_0_AMT1" name="L_PAYMENTREQUEST_0_AMT1" onchange="updateTotal()" value="22.22" /><br />
+    </div><br />
+
+    <div class="paramName">PAYMENTREQUEST_0_INVNUM:</div>
+    <input type="text" id="PAYMENTREQUEST_0_INVNUM" name="PAYMENTREQUEST_0_INVNUM" value="" /><br />
+    <div class="paramName">CUSTOM:</div>
+    <input type="text" id="CUSTOM" name="CUSTOM" value="Custom Field" /><br />
+    <div class="paramName">PAYMENTREQUEST_0_SHIPPINGAMT:</div>
+    <input type="text" id="PAYMENTREQUEST_0_SHIPPINGAMT" name="PAYMENTREQUEST_0_SHIPPINGAMT" onchange="updateTotal()" value="4.56" /><br />
+    <div class="paramName">PAYMENTREQUEST_0_HANDLINGAMT:</div>
+    <input type="text" id="PAYMENTREQUEST_0_HANDLINGAMT" name="PAYMENTREQUEST_0_HANDLINGAMT" onchange="updateTotal()" value="1.00" /><br />
+    <div class="paramName">PAYMENTREQUEST_0_TAXAMT:</div>
+    <input type="text" id="PAYMENTREQUEST_0_TAXAMT" name="PAYMENTREQUEST_0_TAXAMT" onchange="updateTotal()" value="4.56" /><br />
+    <div class="paramName">PAYMENTREQUEST_0_AMT:</div>
+    <input type="text" id="PAYMENTREQUEST_0_AMT" name="PAYMENTREQUEST_0_AMT" value="" readonly /><br />
+    <div class="paramName">MAXAMT:</div>
+    <input type="text" id="MAXAMT" name="MAXAMT" value="" /><br />
+
+    <div class="paramName">SETTLEMENT:</div>
+    <div class="controls" style="display: inline-block">
+      <select name="SETTLEMENT">
+        <option value="1" selected="selected">Immediate</option>
+        <option value="0">Deferred</option>
+        <option value="multi">Deferred-Multi</option>
+      </select>
+    </div>
+    <br />
+    <div class="paramName">PAYMENTREQUEST_0_CURRENCYCODE:</div>
+    <div class="controls" style="display: inline-block">
+      <select name="PAYMENTREQUEST_0_CURRENCYCODE">
+        <option value="GBP" selected="selected">GBP</option>
+        <option value="USD">USD</option>
+        <option value="EUR">EUR</option>
+        <option value="AUD">AUD</option>
+        <option value="BRL">BRL</option>
+        <option value="CAD">CAD</option>
+        <option value="CZK">CZK</option>
+        <option value="DKK">DKK</option>
+        <option value="HKD">HKD</option>
+        <option value="HUF">HUF</option>
+        <option value="ILS">ILS</option>
+        <option value="JPY">JPY</option>
+        <option value="MYR">MYR</option>
+        <option value="MXN">MXN</option>
+        <option value="NOK">NOK</option>
+        <option value="NZD">NZD</option>
+        <option value="PHP">PHP</option>
+        <option value="PLN">PLN</option>
+        <option value="SGD">SGD</option>
+        <option value="SEK">SEK</option>
+        <option value="CHF">CHF</option>
+        <option value="TWD">TWD</option>
+        <option value="THB">THB</option>
+        <option value="TRY">TRY</option>
+      </select>
     </div>
     <br />
 
-    <div class="paramName">PAYMENTREQUEST_0_INVNUM:</div>
-    <input type="text" name="PAYMENTREQUEST_0_INVNUM" value="abc123" /><br />
-    <div class="paramName">PAYMENTREQUEST_0_SHIPPINGAMT:</div>
-    <input type="text" id="PAYMENTREQUEST_0_SHIPPINGAMT" name="PAYMENTREQUEST_0_SHIPPINGAMT" onchange="updateTotal()" value="1.23" /><br />
-    <div class="paramName">PAYMENTREQUEST_0_AMT:</div>
-    <input type="text" id="PAYMENTREQUEST_0_AMT" name="PAYMENTREQUEST_0_AMT" value="" readonly /><br />
+    <div class="paramName">PAYMENTREQUEST_0_LOCALECODE:</div>
+    <div class="controls" style="display: inline-block">
+      <select name="PAYMENTREQUEST_0_LOCALECODE">
+        <option value="GB" selected="selected">GB</option>
+        <option value="DE">DE</option>
+      </select>
+    </div>
+    <br />
+
+    <div class="paramName">LANDINGPAGE:</div>
+    <div class="controls" style="display: inline-block">
+      <select name="LANDINGPAGE">
+        <option value="Login" selected="selected">Login</option>
+        <option value="Billing">Billing</option>
+      </select>
+    </div>
+    <br />
 
 		<div class="paramName">LOGOIMG:</div>
     <input type="text" name="LOGOIMG" value="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg" /><br />
@@ -64,26 +128,8 @@
     <div class="paramName">RETURNURL:</div>
     <input type="text" name="RETURNURL" value="http://localhost/Realex/confirm.php" /><br />
     <div class="paramName">CANCELURL:</div>
-    <input type="text" name="CANCELURL" value="http://localhost/Realex/index.php" /><br />
+    <input type="text" name="CANCELURL" value="http://localhost/Realex/index.html" /><br />
 
-    <div class="paramName">PAYMENTREQUEST_0_PAYMENTACTION:</div>
-    <div class="controls" style="display: inline-block">
-      <select name="PAYMENTREQUEST_0_PAYMENTACTION">
-        <option value="Sale" selected="selected">Sale</option>
-        <option value="Order">Order</option>
-        <option value="Authorization">Authorization</option>
-      </select>
-    </div>
-    <br />
-    <div class="paramName">PAYMENTREQUEST_0_CURRENCYCODE:</div>
-    <div class="controls" style="display: inline-block">
-      <select name="PAYMENTREQUEST_0_CURRENCYCODE">
-        <option value="GBP" selected="selected">GBP</option>
-        <option value="USD">USD</option>
-        <option value="EUR">EUR</option>
-      </select>
-    </div>
-    <br />
     <div class="paramName">useraction=commit</div>
     <input type="checkbox" class="paramCheckbox" name="COMMIT" value="Yes" /><br />
     <div class="paramName">NOSHIPPING</div>

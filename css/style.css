@@ -44,3 +44,11 @@ input[type='text'] {
 .result {
   padding-left: 20px;
 }
+
+.brand {
+  cursor: default !important;
+}
+
+.brand:hover {
+  color: #fff !important;
+}

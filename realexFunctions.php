@@ -3,25 +3,79 @@ require_once("config.php");
 require_once("common.php");
 
 function realexPaymentSetRequest($sAmount, $sCurrency, $sOrderId,
-                                 $sReturnURL, $sCancelURL, $bAutoSettle = TRUE,
+                                 $sReturnURL, $sCancelURL, $sAutoSettle = '1',
+                                 $sOrderTotal = NULL, $sShippingAmount = NULL, $sHandlingAmount = NULL, $sTaxAmount = NULL,
+                                 $aShipping = NULL, $aOptions = NULL, $aLineItems = NULL,
                                  $sPaymentMethod = PAYPAL_PAYMENT_METHOD,
                                  $sMerchantId = MERCHANT_ID, $sAccount = ACCOUNT) {
   global $aRealexFunctions;
   $sTime = _realexGetTimeStamp();
-  $sSha1Hash = _realexSha1Hash($sTime, $sMerchantId, $sOrderId, $sAmount, $sCurrency, $aRealexFunctions["PAYMENT-SET"]);
+  $sSha1Hash = _realexCreateSha1Hash($sTime, $sMerchantId, $sOrderId, $sAmount, $sCurrency, $sPaymentMethod);
 
   $sXmlRequest = '<?xml version="1.0" encoding="UTF-8"?>'.
-  "<request type=\"payment-set\" timestamp=\"$sTime\">".
+  '<request type="'.$aRealexFunctions["PAYMENT-SET"].'"'." timestamp=\"$sTime\">".
     "<merchantid>$sMerchantId</merchantid>".
     "<account>$sAccount</account>".
     "<amount currency=\"$sCurrency\">$sAmount</amount>".
-    '<autosettle flag="'.($bAutoSettle ? '1' : '0').'" />'.
+    "<autosettle flag=\"$sAutoSettle\" />".
     "<orderid>$sOrderId</orderid>".
     "<paymentmethod>$sPaymentMethod</paymentmethod>".
     '<paymentmethoddetails>'.
-      '<ReturnURL>'.urlencode($sReturnURL).'</ReturnURL>'.
-      '<CancelURL>'.urlencode($sCancelURL).'</CancelURL>'.
-    '</paymentmethoddetails>'.
+      "<ReturnURL>$sReturnURL</ReturnURL>".
+      "<CancelURL>$sCancelURL</CancelURL>";
+
+  // Line Item Details
+  if($aLineItems) {
+    $sXmlRequest .= "<PaymentDetails>";
+
+    // BUG: This will not be required.
+    //$iOrderTotal = $sOrderTotal + $sShippingAmount + $sHandlingAmount + $sTaxAmount;
+    $fOrderTotal = $sAmount / 100;
+    $sXmlRequest .= "<OrderTotal currencyID=\"$sCurrency\">$fOrderTotal</OrderTotal>";
+    ///
+
+    $sXmlRequest .= "<ItemTotal currencyID=\"$sCurrency\">$sOrderTotal</ItemTotal>";
+    $sXmlRequest .= "<ShippingTotal currencyID=\"$sCurrency\">$sShippingAmount</ShippingTotal>";
+    $sXmlRequest .= "<HandlingTotal currencyID=\"$sCurrency\">$sHandlingAmount</HandlingTotal>";
+    $sXmlRequest .= "<TaxTotal currencyID=\"$sCurrency\">$sTaxAmount</TaxTotal>";
+
+    // Shipping Address
+    if($aShipping) {
+      $sXmlRequest .= "<ShipToAddress>";
+      foreach($aShipping as $sParamName => $sParamValue) {
+        $sXmlRequest .= "<$sParamName>$sParamValue</$sParamName>";
+      }
+      $sXmlRequest .= "</ShipToAddress>";
+    }
+
+    foreach($aLineItems as $aLineItem) {
+      $sXmlRequest .= "<PaymentDetailsItem>";
+      foreach($aLineItem as $sParamName => $sParamValue) {
+        if("Amount" == $sParamName) {
+          $sXmlRequest .= "<$sParamName currencyID=\"$sCurrency\">$sParamValue</$sParamName>";
+        }
+        else {
+          $sXmlRequest .= "<$sParamName>$sParamValue</$sParamName>";
+        }
+      }
+      $sXmlRequest .= "</PaymentDetailsItem>";
+    }
+    $sXmlRequest .= "</PaymentDetails>";
+  }
+
+  // Optional Parameters
+  if($aOptions) {
+    foreach($aOptions as $sParamName => $sParamValue) {
+      if("MaxAmount" == $sParamName) {
+        $sXmlRequest .= "<$sParamName currencyID=\"$sCurrency\">$sParamValue</$sParamName>";
+      }
+      else {
+        $sXmlRequest .= "<$sParamName>$sParamValue</$sParamName>";
+      }
+    }
+  }
+
+    $sXmlRequest .= '</paymentmethoddetails>'.
     '<comments />'.
     '<custnum />'.
     '<prodid />'.
@@ -37,10 +91,10 @@ function realexPaymentGetRequest($sOrderId, $sPasRef, $sToken,
                                  $sMerchantId = MERCHANT_ID, $sAccount = ACCOUNT) {
   global $aRealexFunctions;
   $sTime = _realexGetTimeStamp();
-  $sSha1Hash = _realexSha1Hash($sTime, $sMerchantId, $sOrderId, $sAmount, $sCurrency, $aRealexFunctions("PAYMENT-GET"));
+  $sSha1Hash = _realexCreateSha1Hash($sTime, $sMerchantId, $sOrderId, '', '', $sPaymentMethod);
 
   $sXmlRequest = '<?xml version="1.0" encoding="UTF-8"?>'.
-  "<request type=\"payment-get\" timestamp=\"$sTime\">".
+  '<request type="'.$aRealexFunctions["PAYMENT-GET"].'"'." timestamp=\"$sTime\">".
     "<merchantid>$sMerchantId</merchantid>".
     "<account>$sAccount</account>".
     "<orderid>$sOrderId</orderid>".
@@ -61,10 +115,10 @@ function realexPaymentDoRequest($sAmount, $sCurrency, $sOrderId, $sPasRef, $sTok
                                 $sMerchantId = MERCHANT_ID, $sAccount = ACCOUNT) {
   global $aRealexFunctions;
   $sTime = _realexGetTimeStamp();
-  $sSha1Hash = _realexSha1Hash($sTime, $sMerchantId, $sOrderId, $sAmount, $sCurrency, $aRealexFunctions("PAYMENT-DO"));
+  $sSha1Hash = _realexCreateSha1Hash($sTime, $sMerchantId, $sOrderId, $sAmount, $sCurrency, $sPaymentMethod);
 
   $sXmlRequest = '<?xml version="1.0" encoding="UTF-8"?>'.
-  "<request type=\"payment-do\" timestamp=\"$sTime\">".
+  '<request type="'.$aRealexFunctions["PAYMENT-DO"].'"'." timestamp=\"$sTime\">".
     "<merchantid>$sMerchantId</merchantid>".
     "<account>$sAccount</account>".
     "<amount currency=\"$sCurrency\">$sAmount</amount>".
@@ -73,7 +127,7 @@ function realexPaymentDoRequest($sAmount, $sCurrency, $sOrderId, $sPasRef, $sTok
     "<paymentmethod>$sPaymentMethod</paymentmethod>".
     '<paymentmethoddetails>'.
       "<Token>$sToken</Token>".
-      "<PayerId>$sPayerId</PayerId>".
+      "<PayerID>$sPayerId</PayerID>".
     '</paymentmethoddetails>'.
     '<comments />'.
     "<sha1hash>$sSha1Hash</sha1hash>".
@@ -82,22 +136,22 @@ function realexPaymentDoRequest($sAmount, $sCurrency, $sOrderId, $sPasRef, $sTok
   return _callRealex($sXmlRequest);
 }
 
-function realexPaymentSettle($sAmount, $sCurrency, $sOrderId, $sPasRef, $sNote,
-                             $sMultiSettle = 'none', // ('none', 'partial', 'complete')
+function realexPaymentSettle($sAmount, $sCurrency, $sOrderId, $sPasRef,
+                             $sMultiSettle = 'complete', $sNote = '',
                              $sPaymentMethod = PAYPAL_PAYMENT_METHOD,
                              $sMerchantId = MERCHANT_ID, $sAccount = ACCOUNT) {
   global $aRealexFunctions;
   $sTime = _realexGetTimeStamp();
-  $sSha1Hash = _realexSha1Hash($sTime, $sMerchantId, $sOrderId, $sAmount, $sCurrency, $aRealexFunctions("PAYMENT-SETTLE"));
+  $sSha1Hash = _realexCreateSha1Hash($sTime, $sMerchantId, $sOrderId, $sAmount, $sCurrency, $sPaymentMethod);
 
   $sXmlRequest = '<?xml version="1.0" encoding="UTF-8"?>'.
-  "<request type=\"payment-settle\" timestamp=\"$sTime\">".
+  '<request type="'.$aRealexFunctions["PAYMENT-SETTLE"].'"'." timestamp=\"$sTime\">".
     "<merchantid>$sMerchantId</merchantid>".
     "<account>$sAccount</account>".
     "<amount currency=\"$sCurrency\">$sAmount</amount>".
-    ($bMultiSettle != 'none' ? "<multisettle type=\"$sMultiSettle\" />" : "").
     "<orderid>$sOrderId</orderid>".
     "<pasref>$sPasRef</pasref>".
+    "<multisettle type=\"$sMultiSettle\" />".
     "<paymentmethod>$sPaymentMethod</paymentmethod>".
     '<paymentmethoddetails>'.
       "<Note>$sNote</Note>".
@@ -114,10 +168,10 @@ function realexPaymentVoid($sOrderId, $sPasRef,
                            $sMerchantId = MERCHANT_ID, $sAccount = ACCOUNT) {
   global $aRealexFunctions;
   $sTime = _realexGetTimeStamp();
-  $sSha1Hash = _realexSha1Hash($sTime, $sMerchantId, $sOrderId, $sAmount, $sCurrency, $aRealexFunctions("PAYMENT-VOID"));
+  $sSha1Hash = _realexCreateSha1Hash($sTime, $sMerchantId, $sOrderId, '', '', $sPaymentMethod);
 
   $sXmlRequest = '<?xml version="1.0" encoding="UTF-8"?>'.
-  "<request type=\"payment-void\" timestamp=\"$sTime\">".
+  '<request type="'.$aRealexFunctions["PAYMENT-VOID"].'"'." timestamp=\"$sTime\">".
     "<merchantid>$sMerchantId</merchantid>".
     "<account>$sAccount</account>".
     "<orderid>$sOrderId</orderid>".
@@ -130,31 +184,38 @@ function realexPaymentVoid($sOrderId, $sPasRef,
   return _callRealex($sXmlRequest);
 }
 
-function realexPaymentCredit($sOrderId, $sPasRef,
+function realexPaymentCredit($sAmount, $sCurrency, $sOrderId, $sPasRef,
                              $sPaymentMethod = PAYPAL_PAYMENT_METHOD,
-                             $sMerchantId = MERCHANT_ID, $sAccount = ACCOUNT) {
+                             $sMerchantId = MERCHANT_ID, $sAccount = ACCOUNT, $sRefundHash = REFUND_HASH) {
   global $aRealexFunctions;
   $sTime = _realexGetTimeStamp();
-  $sSha1Hash = _realexSha1Hash($sTime, $sMerchantId, $sOrderId, $sAmount, $sCurrency, $aRealexFunctions("PAYMENT-CREDIT"));
+  $sSha1Hash = _realexCreateSha1Hash($sTime, $sMerchantId, $sOrderId, $sAmount, $sCurrency, $sPaymentMethod);
 
   $sXmlRequest = '<?xml version="1.0" encoding="UTF-8"?>'.
-  "<request type=\"payment-credit\" timestamp=\"$sTime\">".
+  '<request type="'.$aRealexFunctions["PAYMENT-CREDIT"].'"'." timestamp=\"$sTime\">".
     "<merchantid>$sMerchantId</merchantid>".
     "<account>$sAccount</account>".
+    "<amount currency=\"$sCurrency\">$sAmount</amount>".
     "<orderid>$sOrderId</orderid>".
     "<pasref>$sPasRef</pasref>".
     "<paymentmethod>$sPaymentMethod</paymentmethod>".
     '<paymentmethoddetails />'.
     "<sha1hash>$sSha1Hash</sha1hash>".
+    "<refundhash>$sRefundHash</refundhash>".
   '</request>';
 
   return _callRealex($sXmlRequest);
 }
 
 /* Internal */
-function _realexSha1Hash($sTimeStamp, $sMerchantID, $sOrderID, $sAmount, $sCurrency, $sPaymentMethod, $sSecret = REALEX_SECRET) {
-  $sHash = sha1($sTimeStamp.$sMerchantID.$sOrderID.$sAmount.$sCurrency.$sPaymentMethod);
-  return sha1($sHash.$sSecret);
+function _realexCreateSha1Hash($sTimeStamp, $sMerchantID, $sOrderID, $sAmount, $sCurrency, $sPaymentMethod, $sSecret = REALEX_SECRET) {
+  $sHash = sha1($sTimeStamp.'.'.$sMerchantID.'.'.$sOrderID.'.'.$sAmount.'.'.$sCurrency.'.'.$sPaymentMethod);
+  return sha1($sHash.'.'.$sSecret);
+}
+
+function _realexCheckSha1Hash($sTimeStamp, $sMerchantID, $sOrderID, $sAmount, $sCurrency, $sPaymentMethod, $sSecret = REALEX_SECRET) {
+
+  return;
 }
 
 function _realexGetTimeStamp() {
@@ -164,7 +225,7 @@ function _realexGetTimeStamp() {
 function _callRealex($sXmlRequest) {
   $hCURL = curl_init();
   curl_setopt($hCURL, CURLOPT_URL, API_ENDPOINT);
-  curl_setopt($hCURL, CURLOPT_VERBOSE, 1);
+  //curl_setopt($hCURL, CURLOPT_VERBOSE, 1);
   curl_setopt($hCURL, CURLOPT_RETURNTRANSFER, 1);
   curl_setopt($hCURL, CURLOPT_POST, 1);
   curl_setopt($hCURL, CURLOPT_POSTFIELDS, $sXmlRequest);
@@ -183,7 +244,7 @@ function _callRealex($sXmlRequest) {
     curl_close($hCURL);
   }
 
-  if(LOG_REQUESTS) {
+  if(LOG_RESPONSES) {
     logNotice("REALEX RESPONSE XML:".$sResponse);
   }
   return $sResponse;
