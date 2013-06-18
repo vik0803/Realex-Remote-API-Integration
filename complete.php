@@ -50,16 +50,13 @@ if("SUCCESS" == $sMessage) {
   if($oAuthResponse) {
     $oAck = $oAuthResponse->getElementsByTagName(REALEX_TAG_ACK)->item(0);
     $sAck = $oAck->nodeValue;
-    $oAmount = $oAuthResponse->getElementsByTagName(REALEX_TAG_AMOUNT)->item(0);
-    $sAmount = $oAmount->nodeValue;
 
     if("Success" == $sAck) {
       $oTransactionId = $oAuthResponse->getElementsByTagName(REALEX_TAG_TRANSACTIONID)->item(0);
       $sTransactionId = $oTransactionId->nodeValue;
-      $sCaptureUrl = "capture.php?Amount=$sAmount";
   ?>
 
-    <form action="<?php echo $sCaptureUrl; ?>" method="post">
+    <form action="<?php echo CAPTURE_URL; ?>" method="post">
       <button class="btn btn-primary" type="submit">
         Capture
       </button>

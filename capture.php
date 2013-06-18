@@ -8,7 +8,7 @@ if(strlen(session_id()) < 1) {
 $sPasRef = isset($_SESSION["REALEX_PASREF"]) ? $_SESSION["REALEX_PASREF"] : "";
 $sInvNum = isset($_SESSION["PAYMENTREQUEST_0_INVNUM"]) ? $_SESSION["PAYMENTREQUEST_0_INVNUM"] : "";
 $sCurrency = isset($_SESSION["CURRENCYCODE"]) ? $_SESSION["CURRENCYCODE"] : "";
-$sAmt = isset($_REQUEST["Amount"]) ? $_REQUEST["Amount"] : "";
+$sAmt = isset($_SESSION["PAYMENTREQUEST_0_AMT"]) ? ($_SESSION["PAYMENTREQUEST_0_AMT"] / 100) : "";
 
 ?>
 

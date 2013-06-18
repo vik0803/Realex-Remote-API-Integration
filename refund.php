@@ -17,10 +17,8 @@ $sCurrency = isset($_SESSION["CURRENCYCODE"]) ? $_SESSION["CURRENCYCODE"] : "";
 <head>
   <title>Realex: Express Checkout</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <link type="text/css" href="../Common/css/bootstrap/cosmo/bootstrap.min.css" rel="stylesheet" />
+  <link type="text/css" href="./css/bootstrap/cosmo/bootstrap.min.css" rel="stylesheet" />
   <link type="text/css" href="./css/style.css" rel="stylesheet" />
-  <script type="text/javascript" src="../Common/javascript/jquery-1.8.0.min.js"></script>
-  <script type="text/javascript" src="./js/basket.js"></script>
 </head>
 <body>
   <div class="navbar">
